@@ -1,5 +1,5 @@
-# sctransform
-## R package for normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression
+# sctransform with SCENIC support
+## R package for normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression and Beurnolli SCENIC regression
 
 The sctransform package was developed by Christoph Hafemeister in [Rahul Satija's lab](https://satijalab.org/) at the New York Genome Center and described in [Hafemeister and Satija, Genome Biology 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1). Recent updates are described in [(Choudhary and Satija, Genome Biology, 2022)](https://doi.org/10.1186/s13059-021-02584-9).
 Core functionality of this package has been integrated into [Seurat](https://satijalab.org/seurat/), an R package designed for QC, analysis, and exploration of single cell RNA-seq data.
@@ -40,7 +40,7 @@ Available vignettes:
 - [Variance stabilizing transformation](https://htmlpreview.github.io/?https://github.com/satijalab/sctransform/blob/supp_html/supplement/variance_stabilizing_transformation.html)  
 - [Using sctransform in Seurat](https://htmlpreview.github.io/?https://github.com/satijalab/sctransform/blob/supp_html/supplement/seurat.html)
 - [Examples of how to perform normalization, feature selection, integration, and differential expression with sctransform v2 regularization](https://satijalab.org/seurat/articles/sctransform_v2_vignette.html)
-
+- [Example to how to perform SCENIC normalization]()
 
 Please use [the issue tracker](https://github.com/satijalab/sctransform/issues) if you encounter a problem
 
@@ -49,4 +49,5 @@ Please use [the issue tracker](https://github.com/satijalab/sctransform/issues) 
 - Hafemeister, C. & Satija, R. Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression. Genome Biology 20, 296 (2019).  [https://doi.org/10.1186/s13059-019-1874-1](https://doi.org/10.1186/s13059-019-1874-1). An early version of this work was used in the paper [Developmental diversification of cortical inhibitory interneurons, Nature 555, 2018](https://github.com/ChristophH/in-lineage).
 
 - Choudhary, S. & Satija, R. Comparison and evaluation of statistical error models for scRNA-seq. Genome Biology 23.1 (2022). [https://doi.org/10.1186/s13059-021-02584-9](https://doi.org/10.1186/s13059-021-02584-9)
+-FOX
 
