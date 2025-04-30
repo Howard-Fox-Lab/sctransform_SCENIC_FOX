@@ -1,4 +1,4 @@
-# sctransform with SCENIC support
+# sctransform with SCENIC support (experimental)
 ## R package for normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression and Beurnolli SCENIC regression
 
 The sctransform package was developed by Christoph Hafemeister in [Rahul Satija's lab](https://satijalab.org/) at the New York Genome Center and described in [Hafemeister and Satija, Genome Biology 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1). Recent updates are described in [(Choudhary and Satija, Genome Biology, 2022)](https://doi.org/10.1186/s13059-021-02584-9).
@@ -19,7 +19,8 @@ remotes::install_github("satijalab/sctransform", ref="develop")
 Running sctransform:
 
 ```r
-# Runnning sctransform on a UMI matrix
+# Runnning sctransform on a AUC  matrix after output from SCENIC
+AUC = getAUC(AUC_mtx) #3.4_regulonAUC_matrix.Rds
 normalized_data <- sctransform::vst(umi_count_matrix)$y
 # v2 regularization
 normalized_data <- sctransform::vst(umi_count_matrix, vst.flavor="v2")$y
