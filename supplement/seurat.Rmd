@@ -44,19 +44,24 @@ library(Seurat)
 Load data and create Seurat object
 
 ```{r load_data, warning=FALSE, message=FALSE, cache = T}
-pbmc_data <- Read10X(data.dir = "~/Downloads/pbmc3k_filtered_gene_bc_matrices/hg19/")
-pbmc <- CreateSeuratObject(counts = pbmc_data)
+pbmc_data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
+
+pbmc <- readRDS("3.4_regulonAUC_monkeySIV.Rds")## get AUC matrix
+pbmc <- getAUC(pbmc)#
 ```
 
 For reference, we first apply the standard Seurat workflow, with log-normalization
 
 ```{r logtrans, warning=FALSE, message=FALSE, cache = T}
-pbmc_logtransform <- pbmc
+
+## the first step for comparison
+pbmc_logtransform <- pbmc_data
 pbmc_logtransform <- NormalizeData(pbmc_logtransform, verbose = FALSE)
 pbmc_logtransform <- FindVariableFeatures(pbmc_logtransform, verbose = FALSE) 
-pbmc_logtransform <- ScaleData(pbmc_logtransform, verbose = FALSE) 
 pbmc_logtransform <- RunPCA(pbmc_logtransform, verbose = FALSE) 
 pbmc_logtransform <- RunUMAP(pbmc_logtransform,dims = 1:20, verbose = FALSE)
+
+## the correct transfor,
 ```
 
 For comparison, we now apply sctransform normalization
@@ -64,6 +69,19 @@ For comparison, we now apply sctransform normalization
 ```{r apply_sct, warning=FALSE, message=FALSE, cache = T}
 # Note that this single command replaces NormalizeData, ScaleData, and FindVariableFeatures.
 # Transformed data will be available in the SCT assay, which is set as the default after running sctransform
+
+pbmc_mtx <- bernoolize(pbmc)#
+pbmc_AUCcell = CreateSeuratObject(pbmc_mtx)
+
+mean_auc <- colMeans(df[, 1:56])
+expected_variance <- mean_auc * (1 - mean_auc)
+
+# See which regulons have highest "binomial variance"
+selected_regulons <- names(sort(expected_variance, decreasing = TRUE))[1:20]
+
+pbmc_logtransform <- RunPCA(pbmc_AUCcell, features = selected_regulons, verbose = FALSE) 
+pbmc_logtransform <- RunUMAP(pbmc_logtransform,dims = 1:20, verbose = FALSE)
+## correct
 pbmc <- SCTransform(object = pbmc, verbose = FALSE)
 ```
 
@@ -78,6 +96,7 @@ pbmc <- FindClusters(object = pbmc, verbose = FALSE)
 ```
 
 Visualize the clustering results on the sctransform and log-normalized embeddings.
+
 ```{r viz, cache = T}
 pbmc_logtransform$clusterID <- Idents(pbmc)
 Idents(pbmc_logtransform) <- 'clusterID'
@@ -89,11 +108,10 @@ plot1 + plot2
 
 Users can individually annotate clusters based on canonical markers. However, the sctransform normalization reveals sharper biological distinctions compared to the log-normalized analysis. For example, note how clusters 0, 1, 9, and 11 (all distinct clusters of T cells), are blended together in log-normalized analyses. The sctransform analysis reveals:
 
-
-* Clear separation of three CD8 T cell clusters (naive, memory, effector), based on CD8A, GZMK, CCL5 expression 
-* Clear separation of three CD4 T cell clusters (naive, memory, IFN-activated) based on S100A4, CCR7, IL32, and ISG15 
-* Additional developmental sub-structure in B cell cluster, based on TCL1A, FCER2
-* Additional sub-structure within NK cell cluster (CD56dim vs. bright), based on XCL1 and FCGR3A
+-   Clear separation of three CD8 T cell clusters (naive, memory, effector), based on CD8A, GZMK, CCL5 expression
+-   Clear separation of three CD4 T cell clusters (naive, memory, IFN-activated) based on S100A4, CCR7, IL32, and ISG15
+-   Additional developmental sub-structure in B cell cluster, based on TCL1A, FCER2
+-   Additional sub-structure within NK cell cluster (CD56dim vs. bright), based on XCL1 and FCGR3A
 
 Visualize canonical marker genes as violin plots.
 
