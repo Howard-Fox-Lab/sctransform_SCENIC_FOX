@@ -49,5 +49,6 @@ Please use [the issue tracker](https://github.com/satijalab/sctransform/issues) 
 - Hafemeister, C. & Satija, R. Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression. Genome Biology 20, 296 (2019).  [https://doi.org/10.1186/s13059-019-1874-1](https://doi.org/10.1186/s13059-019-1874-1). An early version of this work was used in the paper [Developmental diversification of cortical inhibitory interneurons, Nature 555, 2018](https://github.com/ChristophH/in-lineage).
 
 - Choudhary, S. & Satija, R. Comparison and evaluation of statistical error models for scRNA-seq. Genome Biology 23.1 (2022). [https://doi.org/10.1186/s13059-021-02584-9](https://doi.org/10.1186/s13059-021-02584-9)
--FOX
+
+- FOX [https://github.com/Howard-Fox-Lab/FOX-Functional-OMIC-eXploration](https://github.com/Howard-Fox-Lab/FOX-Functional-OMIC-eXploration)
 
