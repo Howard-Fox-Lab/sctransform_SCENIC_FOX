@@ -37,65 +37,98 @@ This vignette shows how to use the sctransform wrapper in Seurat.
 
 Make sure the Seurat package is loaded
 
-```{r eval=FALSE}
-library(Seurat)
+```{r}
+bernoolize <- function(x) { 
+  stopifnot(all(x >= 0 & x <= 1))
+  asin(sqrt(x))
+}
+
+remove_extended <- function(df) { 
+  df <- df[!grepl("extended", rownames(df)), ]
+}
 ```
 
 Load data and create Seurat object
 
 ```{r load_data, warning=FALSE, message=FALSE, cache = T}
-pbmc_data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
+pbmc <- readRDS("~/Desktop/work_folder/follow-up study/MONKEY SIV/3.4_regulonAUC_monkeySIV.Rds")## get AUC matrix
+pbmc <- getAUC(pbmc)
 
-pbmc <- readRDS("3.4_regulonAUC_monkeySIV.Rds")## get AUC matrix
-pbmc <- getAUC(pbmc)#
+pbmc_mtx <- remove_extended(pbmc)
+pbmc <- CreateAssayObject(pbmc_mtx, key="SCENIC")
+pbmc <- CreateSeuratObject(pbmc)
 ```
 
-For reference, we first apply the standard Seurat workflow, with log-normalization
+For reference, we first apply the standard Seurat/SCENIC workflow, with log-normalization - normal gaussian
 
 ```{r logtrans, warning=FALSE, message=FALSE, cache = T}
 
-## the first step for comparison
-pbmc_logtransform <- pbmc_data
+pbmc_logtransform <- pbmc
 pbmc_logtransform <- NormalizeData(pbmc_logtransform, verbose = FALSE)
-pbmc_logtransform <- FindVariableFeatures(pbmc_logtransform, verbose = FALSE) 
+pbmc_logtransform <- FindVariableFeatures(pbmc_logtransform, verbose = FALSE)
+pbmc_logtransform <- ScaleData(pbmc_logtransform, verbose = FALSE)
 pbmc_logtransform <- RunPCA(pbmc_logtransform, verbose = FALSE) 
 pbmc_logtransform <- RunUMAP(pbmc_logtransform,dims = 1:20, verbose = FALSE)
 
 ## the correct transfor,
 ```
 
-For comparison, we now apply sctransform normalization
+For comparison, we now apply sctransform normalization (bernollize)
 
 ```{r apply_sct, warning=FALSE, message=FALSE, cache = T}
 # Note that this single command replaces NormalizeData, ScaleData, and FindVariableFeatures.
 # Transformed data will be available in the SCT assay, which is set as the default after running sctransform
 
-pbmc_mtx <- bernoolize(pbmc)#
-pbmc_AUCcell = CreateSeuratObject(pbmc_mtx)
+pbmc_mtx_norm <- bernoolize(pbmc_mtx) ## USE FOR PCA ONLY!
 
-mean_auc <- colMeans(df[, 1:56])
-expected_variance <- mean_auc * (1 - mean_auc)
+# First: make the normalized assay (VST transformed, for PCA etc.)
+pbmc_assay_norm <- CreateAssayObject(counts = pbmc_mtx_norm, key = "SCENIC_")
 
-# See which regulons have highest "binomial variance"
-selected_regulons <- names(sort(expected_variance, decreasing = TRUE))[1:20]
+# Then: make the original AUCell assay (raw scores)
+pbmc_assay_raw <- CreateAssayObject(counts = pbmc_mtx, key = "AUCell_")
 
-pbmc_logtransform <- RunPCA(pbmc_AUCcell, features = selected_regulons, verbose = FALSE) 
-pbmc_logtransform <- RunUMAP(pbmc_logtransform,dims = 1:20, verbose = FALSE)
-## correct
-pbmc <- SCTransform(object = pbmc, verbose = FALSE)
+# Create Seurat object with raw AUCell as the default assay
+pbmc <- CreateSeuratObject(counts = pbmc_assay_raw)
+
+# Add normalized matrix as a second assay
+pbmc[["bernoolized"]] <- pbmc_assay_norm
 ```
 
-Perform dimensionality reduction by PCA and UMAP embedding
+## Find Variable genes rewritten for Binomial variance 
+
+```{r}
+find_variable_genes  = function(pbmc_mtx, n) {
+  mean_auc <- colMeans(t(pbmc_mtx))
+  expected_variance <- mean_auc * (1 - mean_auc)
+  selected_regulons <- names(sort(expected_variance, decreasing = TRUE))[1:n]
+  return(selected_regulons)
+}
+```
+
+Perform dimensional reduction by PCA and UMAP embedding
 
 ```{r pca, cache = T}
 # These are now standard steps in the Seurat workflow for visualization and clustering
-pbmc <- RunPCA(object = pbmc, verbose = FALSE)
-pbmc <- RunUMAP(object = pbmc, dims = 1:20, verbose = FALSE)
-pbmc <- FindNeighbors(object = pbmc, dims = 1:20, verbose = FALSE)
+DefaultAssay(pbmc) <- "bernoolized"
+
+pbmc <- ScaleData(pbmc, verbose = FALSE)
+pbmc <- RunPCA(object = pbmc, verbose = FALSE, features = find_variable_genes(pbmc_mtx, 20))
+pbmc <- RunUMAP(object = pbmc, dims = 1:5, verbose = FALSE)
+pbmc <- FindNeighbors(object = pbmc, dims = 1:5, verbose = FALSE)
 pbmc <- FindClusters(object = pbmc, verbose = FALSE)
 ```
 
-Visualize the clustering results on the sctransform and log-normalized embeddings.
+```{r}
+
+pbmc_logtransform$clusterID <- Idents(pbmc)
+Idents(pbmc_logtransform) <- 'clusterID'
+plot1 <- DimPlot(object = pbmc, label = TRUE, reduction = "pca") + NoLegend() + ggtitle('sctransform') 
+plot2 <- DimPlot(object = pbmc_logtransform, reduction = "pca", label = TRUE)
+plot2 <- plot2 + NoLegend() + ggtitle('Log-normalization') 
+plot1 + plot2
+```
+
+Visualize the clustering results UMAP on the sctransform and log-normalized embedding.
 
 ```{r viz, cache = T}
 pbmc_logtransform$clusterID <- Idents(pbmc)
@@ -106,25 +139,8 @@ plot2 <- plot2 + NoLegend() + ggtitle('Log-normalization')
 plot1 + plot2
 ```
 
-Users can individually annotate clusters based on canonical markers. However, the sctransform normalization reveals sharper biological distinctions compared to the log-normalized analysis. For example, note how clusters 0, 1, 9, and 11 (all distinct clusters of T cells), are blended together in log-normalized analyses. The sctransform analysis reveals:
+Users can individually annotate clusters based on canonical markers. However, the sctransform (Bernoulli) normalization reveals sharper biological distinctions compared to the log-normalized analysis.
 
--   Clear separation of three CD8 T cell clusters (naive, memory, effector), based on CD8A, GZMK, CCL5 expression
--   Clear separation of three CD4 T cell clusters (naive, memory, IFN-activated) based on S100A4, CCR7, IL32, and ISG15
--   Additional developmental sub-structure in B cell cluster, based on TCL1A, FCER2
--   Additional sub-structure within NK cell cluster (CD56dim vs. bright), based on XCL1 and FCGR3A
+While the
 
-Visualize canonical marker genes as violin plots.
-
-```{r fplot, cache = T}
-VlnPlot(object = pbmc, features = c("CD8A","GZMK","CCL5","S100A4","S100A4","CCR7","ISG15","CD3D"), pt.size = 0.2,ncol = 4)
-```
-
-Visualize canonical marker genes on the sctransform embedding.
-
-```{r fplot2, cache = T}
-FeaturePlot(object = pbmc, features = c("CD8A","GZMK","CCL5","S100A4","S100A4","CCR7"), pt.size = 0.2,ncol = 3)
-```
-
-```{r fplot3, cache = T}
-FeaturePlot(object = pbmc, features = c("CD3D","ISG15","TCL1A","FCER2","XCL1","FCGR3A"), pt.size = 0.2,ncol = 3)
-```
+For example, note how clusters 1, 8, 5, and 0 (all distinct clusters), are blended together in log-normalized analyses.
