@@ -1,6 +1,6 @@
 ---
-title: "Using sctransform in Seurat"
-author: "Christoph Hafemeister & Rahul Satija"
+title: "Using sctransform in SCENIC AUCell"
+author: "Moses Apostol"
 date: '`r Sys.Date()`'
 output: 
   html_document:
@@ -69,8 +69,6 @@ pbmc_logtransform <- FindVariableFeatures(pbmc_logtransform, verbose = FALSE)
 pbmc_logtransform <- ScaleData(pbmc_logtransform, verbose = FALSE)
 pbmc_logtransform <- RunPCA(pbmc_logtransform, verbose = FALSE) 
 pbmc_logtransform <- RunUMAP(pbmc_logtransform,dims = 1:20, verbose = FALSE)
-
-## the correct transfor,
 ```
 
 For comparison, we now apply sctransform normalization (bernollize)
@@ -95,6 +93,8 @@ pbmc[["bernoolized"]] <- pbmc_assay_norm
 ```
 
 ## Find Variable genes rewritten for Binomial variance 
+
+We treat AUCell scores as approximate Bernoulli trials --- each score reflecting the probability that a regulon is active in a given cell. The mean AUC across cells approximates the Bernoulli success probability (p), and the associated variance is naturally p(1 - p), which reflects biological heterogeneity.
 
 ```{r}
 find_variable_genes  = function(pbmc_mtx, n) {
@@ -130,7 +130,7 @@ plot1 + plot2
 
 Visualize the clustering results UMAP on the sctransform and log-normalized embedding.
 
-```{r viz, cache = T}
+```{r}
 pbmc_logtransform$clusterID <- Idents(pbmc)
 Idents(pbmc_logtransform) <- 'clusterID'
 plot1 <- DimPlot(object = pbmc, label = TRUE) + NoLegend() + ggtitle('sctransform') 
@@ -140,7 +140,5 @@ plot1 + plot2
 ```
 
 Users can individually annotate clusters based on canonical markers. However, the sctransform (Bernoulli) normalization reveals sharper biological distinctions compared to the log-normalized analysis.
-
-While the
 
 For example, note how clusters 1, 8, 5, and 0 (all distinct clusters), are blended together in log-normalized analyses.
