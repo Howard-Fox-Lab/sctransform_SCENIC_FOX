@@ -1,4 +1,4 @@
-# sctransform with SCENIC support (experimental)
+# sctransform with SCENIC support 
 ## R package for normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression and Beurnolli SCENIC regression
 
 The sctransform package was developed by Christoph Hafemeister in [Rahul Satija's lab](https://satijalab.org/) at the New York Genome Center and described in [Hafemeister and Satija, Genome Biology 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1). Recent updates are described in [(Choudhary and Satija, Genome Biology, 2022)](https://doi.org/10.1186/s13059-021-02584-9).
@@ -41,9 +41,9 @@ Available vignettes:
 - [Variance stabilizing transformation](https://htmlpreview.github.io/?https://github.com/satijalab/sctransform/blob/supp_html/supplement/variance_stabilizing_transformation.html)  
 - [Using sctransform in Seurat](https://htmlpreview.github.io/?https://github.com/satijalab/sctransform/blob/supp_html/supplement/seurat.html)
 - [Examples of how to perform normalization, feature selection, integration, and differential expression with sctransform v2 regularization](https://satijalab.org/seurat/articles/sctransform_v2_vignette.html)
-- [Example to how to perform SCENIC normalization]()
-
-Please use [the issue tracker](https://github.com/satijalab/sctransform/issues) if you encounter a problem
+- [Example to how to perform SCENIC normalization](https://mapounmc.github.io/sctransform/variance_stabilizing_transformation-copy.html)
+- [10X Genomics PBMC](https://mapounmc.github.io/sctransform/seurat-copy_pbmc.html)
+- [Acute Infected Brain and Blood](https://mapounmc.github.io/sctransform/seurat-copy_SIV_monkey_brain_blood.html)
 
 ## References
 
