@@ -1,0 +1,62 @@
+cff-version: 1.2.0
+message: >
+  If you use the sctransform package with SCENIC support or any of the
+  accompanying vignettes, please cite the software and papers below.
+title: "sctransform with SCENIC support"
+version: "0.1.0"
+date-released: "2025-05-05"
+type: software
+license: "GPL-3.0-or-later"
+repository-code: "https://github.com/your-org/sctransform-scenic"
+keywords:
+  - single-cell RNA-seq
+  - normalization
+  - variance stabilization
+  - SCENIC
+  - negative binomial regression
+authors:
+  - family-names: Hafemeister
+    given-names: Christoph
+    affiliation: New York Genome Center
+  - family-names: Satija
+    given-names: Rahul
+    affiliation: New York Genome Center
+  - family-names: Apostol# ← add or replace
+    given-names: Moses Jedd
+    affiliation: UNMC
+preferred-citation:
+  type: article
+  title: "Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression (beurnolli)"
+  authors:
+    - family-names: Hafemeister
+      given-names: Christoph
+    - family-names: Satija
+      given-names: Rahul
+  journal: Genome Biology
+  volume: "20"
+  page: "296"
+  year: "2019"
+  doi: 10.1186/s13059-019-1874-1
+references:
+  - type: article
+    title: "Comparison and evaluation of statistical error models for scRNA-seq"
+    authors:
+      - family-names: Choudhary
+        given-names: S.
+      - family-names: Satija
+        given-names: Rahul
+    journal: Genome Biology
+    volume: "23"
+    issue: "1"
+    year: "2022"
+    doi: 10.1186/s13059-021-02584-9
+  - type: article
+    title: "Single-cell regulatory network inference and clustering (SCENIC)"
+    authors:
+      - family-names: Aibar
+        given-names: Sara
+      - family-names: et al.
+    journal: Nature Methods
+    year: "2017"
+    doi: 10.1038/nmeth.4463
+
